@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+
+# Virtual Environments
+venv/
+env/
+
+# IDEs and Editors
+.idea/
+.vscode/
+
+# Miscellaneous
+*.log
+*.swp
+
+#Photos
+uploads/
