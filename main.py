@@ -52,7 +52,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "PUT"],
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
     allow_headers=["Content-Type", "Set-Cookie"],
 )
 
@@ -213,6 +213,22 @@ async def create_place(place: Place, token: str = Cookie(default=None, alias="ac
     ):
         raise HTTPException(status_code=400, detail="Please provide all required fields")
 
+    # Validate title length
+    if len(place.title) < 5:
+        raise HTTPException(status_code=400, detail="Title should be a minimum of 5 characters")
+
+    # Validate address length
+    if len(place.address) < 10:
+        raise HTTPException(status_code=400, detail="Address should be a minimum of 10 characters")
+
+    # Validate description length
+    if len(place.description) < 50:
+        raise HTTPException(status_code=400, detail="Description should be a minimum of 50 characters")
+
+    # Validate extraInfo length
+    if len(place.extraInfo) < 50:
+        raise HTTPException(status_code=400, detail="Extra info should be a minimum of 50 characters")
+
     existing_place = places_collection.find_one({"title": place.title})
     if existing_place:
         raise HTTPException(status_code=400, detail="Place already registered")
@@ -281,6 +297,22 @@ async def update_place(request: Request, place: Place, token: str = Cookie(defau
             place.maxGuests
     ):
         raise HTTPException(status_code=400, detail="Please provide all required fields")
+
+    # Validate title length
+    if len(place.title) < 5:
+        raise HTTPException(status_code=400, detail="Title should be a minimum of 5 characters")
+
+    # Validate address length
+    if len(place.address) < 10:
+        raise HTTPException(status_code=400, detail="Address should be a minimum of 10 characters")
+
+    # Validate description length
+    if len(place.description) < 50:
+        raise HTTPException(status_code=400, detail="Description should be a minimum of 50 characters")
+
+    # Validate extraInfo length
+    if len(place.extraInfo) < 50:
+        raise HTTPException(status_code=400, detail="Extra info should be a minimum of 50 characters")
 
     decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
     user_id = decoded_token.get("id")
@@ -404,3 +436,33 @@ async def get_bookings(token: str = Cookie(default=None, alias="access_token")):
         return user_bookings
     except jwt.exceptions.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@app.delete("/api/bookings/{booking_id}", response_description="Cancel a booking", status_code=status.HTTP_200_OK)
+async def cancel_booking(booking_id: str):
+    print(booking_id)
+    existing_booking = bookings_collection.find_one({"_id": ObjectId(booking_id)})
+    if not existing_booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    try:
+        bookings_collection.delete_one({"_id": ObjectId(booking_id)})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error occurred while canceling the booking")
+
+    return {"message": "Booking canceled successfully"}
+
+
+@app.delete("/api/places/{place_id}", response_description="Delete a place", status_code=status.HTTP_200_OK)
+async def delete_place(place_id: str):
+    print(place_id)
+    existing_place = places_collection.find({"_id": ObjectId(place_id)})
+    if not existing_place:
+        raise HTTPException(status_code=404, detail="Place not found")
+
+    try:
+        places_collection.delete_one({"_id": ObjectId(place_id)})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error occurred while deleting the place")
+
+    return {"message": "Place deleted successfully"}
