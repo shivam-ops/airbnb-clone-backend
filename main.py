@@ -366,11 +366,12 @@ async def update_place(request: Request, place: Place, token: str = Cookie(defau
 #         raise HTTPException(status_code=403, detail="Unauthorized")
 
 
-@app.get("/api/places", response_description="Get all places", status_code=status.HTTP_200_OK)
-async def get_places():
+@app.get("/api/places", response_description="Get places", status_code=status.HTTP_200_OK)
+async def get_places(page: int = 1, limit: int = 8):
     try:
-        places = list(places_collection.find())
-        places_json = json.dumps(places, default=str)
+        skip = (page - 1) * limit
+        places = places_collection.find().skip(skip).limit(limit)
+        places_json = json.dumps(list(places), default=str)
         places_decoded = json.loads(places_json)
         return places_decoded
     except Exception as e:
