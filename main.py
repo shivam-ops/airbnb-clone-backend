@@ -338,33 +338,6 @@ async def update_place(request: Request, place: Place, token: str = Cookie(defau
     else:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
-# @app.put("/api/places", response_description="Update a place", status_code=status.HTTP_200_OK)
-# async def update_place(request: Request):
-#
-#     token = request.cookies.get("access_token")
-#     place_data = await request.json()
-#
-#     decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-#     user_id = decoded_token.get("id")
-#
-#     place_doc = places_collection.find_one({"_id": ObjectId(place_data.get("id"))})
-#     if place_doc and str(place_doc["owner"]) == user_id:
-#         place_doc["title"] = place_data["title"]
-#         place_doc["address"] = place_data["address"]
-#         place_doc["photos"] = place_data["photos"]
-#         place_doc["description"] = place_data["description"]
-#         place_doc["amenities"] = place_data["amenities"]
-#         place_doc["extraInfo"] = place_data["extraInfo"]
-#         place_doc["checkIn"] = place_data["checkIn"]
-#         place_doc["checkOut"] = place_data["checkOut"]
-#         place_doc["maxGuests"] = place_data["maxGuests"]
-#         place_doc["price"] = place_data["price"]
-#
-#         places_collection.update_one({"_id": ObjectId(place_data["id"])}, {"$set": place_doc})
-#         return "Place updated successfully"
-#     else:
-#         raise HTTPException(status_code=403, detail="Unauthorized")
-
 
 @app.get("/api/places", response_description="Get places", status_code=status.HTTP_200_OK)
 async def get_places(page: int = 1, limit: int = 8):
